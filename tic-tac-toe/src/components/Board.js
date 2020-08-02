@@ -13,13 +13,46 @@ class Board extends React.Component {
   }
 
   handleClick(i) {
+    // Player Turn
     const squares = this.state.squares.slice();
-    squares[i] = this.state.playerXTurn ? 'X' : 'O';
+    console.log(squares);
+
+    if (calculateWinner(squares) || squares[i]) {
+      console.log("winner: " + calculateWinner(squares));
+      console.log(squares[i]);
+      return;
+    }
+
+    squares[i] = 'X';
+
+
+
+    // Computer Turn
+
+    this.computerMove(squares);
+  }
+
+  computerMove(squares) {
+    if (calculateWinner(squares)) {
+      this.setState({
+        squares: squares,
+      })
+      return;
+    }
+    var i = Math.floor(Math.random() * 9);
+
+    while (squares[i]) {
+      console.log("Computer tried to move to " + i + ", but it was taken.")
+      i = Math.floor(Math.random() * 9);
+    };
+
+    squares[i] = 'O';
 
     this.setState({
       squares: squares,
       playerXTurn: !this.state.playerXTurn,
     });
+
   }
 
 
@@ -33,7 +66,13 @@ class Board extends React.Component {
   }
 
   render() {
-    const status = 'Current Player Turn: ' + (this.state.playerXTurn ? 'X' : 'O');
+    const winner = calculateWinner(this.state.squares);
+    let status;
+    if (winner) {
+      status = 'Winner: ' + winner;
+    } else {
+      status = 'Next player: ' + (this.state.playerXTurn ? 'X' : 'O');
+    }
 
     return (
       <div>
@@ -56,6 +95,26 @@ class Board extends React.Component {
       </div>
     );
   }
+}
+
+function calculateWinner(squares) {
+  const victoryLines = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6],
+  ];
+  for (let i = 0; i < victoryLines.length; i++) {
+    const [a, b, c] = victoryLines[i];
+    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+      return squares[a];
+    }
+  }
+  return null;
 }
 
 export default Board;
